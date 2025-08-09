@@ -34,6 +34,46 @@ public:
     vector<string> getDirectReferrals(const string& user) {
         return graph[user];
     }
+    // Part 2: Total referral count (BFS traversal)
+    int getTotalReferralCount(const string& user) {
+        unordered_set<string> visited;
+        queue<string> q;
+        q.push(user);
+        visited.insert(user);
+
+        int count = 0;
+        while (!q.empty()) {
+            string current = q.front(); q.pop();
+            vector<string>& children = graph[current];
+            for (size_t i = 0; i < children.size(); ++i) {
+                string& child = children[i];
+                if (!visited.count(child)) {
+                    visited.insert(child);
+                    count++;
+                    q.push(child);
+                }
+            }
+        }
+        return count;
+    }
+
+    // Part 2: Get top K referrers by total reach
+    vector<pair<string, int> > getTopKReferrers(int k) {
+        vector<pair<string, int> > result;
+        for (unordered_map<string, vector<string> >::iterator it = graph.begin(); it != graph.end(); ++it) {
+            string user = it->first;
+            int reach = getTotalReferralCount(user);
+            result.push_back(make_pair(user, reach));
+        }
+
+        sort(result.begin(), result.end(), [](const pair<string, int>& a, const pair<string, int>& b) {
+            return a.second > b.second;
+        });
+
+        if (k > result.size()) k = result.size();
+        return vector<pair<string, int> >(result.begin(), result.begin() + k);
+    }
+
     private:
         bool createsCycle(const string& referrer, const string& candidate) {
             queue<string> q;
@@ -55,7 +95,7 @@ public:
             }
             return false;
         }
-
+        
         unordered_map<string, int> bfsDistances(const string& source) {
             unordered_map<string, int> dist;
             queue<string> q;

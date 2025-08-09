@@ -43,6 +43,15 @@ int main() {
     cout << "\n=== Test 4: Direct Referrals of A ===\n";
     vector<string> direct = rn.getDirectReferrals("A");
     printVector(direct);
+    cout << "\n=== Test 5: Total Referral Count ===\n";
+    cout << "A: " << rn.getTotalReferralCount("A") << endl;
+    cout << "B: " << rn.getTotalReferralCount("B") << endl;
+    cout << "C: " << rn.getTotalReferralCount("C") << endl;
+    cout << "D: " << rn.getTotalReferralCount("D") << endl;
+
+    cout << "\n=== Test 6: Top 3 Referrers by Reach ===\n";
+    vector<pair<string, int> > topReferrers = rn.getTopKReferrers(3);
+    printTopList(topReferrers);
 
     return 0;
 }
