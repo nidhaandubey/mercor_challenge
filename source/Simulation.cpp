@@ -53,4 +53,28 @@ public:
         if (finalSim.back() >= target_total) return low;
         return -1; // target unreachable
     }
+
+    // Part 5: compute minimum bonus to reach hiring target using binary search
+    static int min_bonus_for_target(int days, int target_hires, function<double(int)> adoption_prob, double eps) {
+        int low = 0;
+        int high = 1000000; // $10 to $10,000,000
+
+        while (low < high) {
+            int mid = ((low + high) / 10) * 10; // round to nearest 10
+            double p = adoption_prob(mid);
+            vector<double> sim = simulate(p, days);
+
+            if (sim.back() >= target_hires) {
+                high = mid;
+            } else {
+                low = mid + 10;
+            }
+        }
+
+        if (low > 1000000) return -1; // unreachable
+        double finalProb = adoption_prob(low);
+        vector<double> finalSim = simulate(finalProb, days);
+        if (finalSim.back() >= target_hires - eps) return low;
+        return -1;
+    }
 };
