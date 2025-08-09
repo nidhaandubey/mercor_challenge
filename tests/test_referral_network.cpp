@@ -52,6 +52,13 @@ int main() {
     cout << "\n=== Test 6: Top 3 Referrers by Reach ===\n";
     vector<pair<string, int> > topReferrers = rn.getTopKReferrers(3);
     printTopList(topReferrers);
+    cout << "\n=== Test 7: Unique Reach Expansion ===\n";
+    vector<string> unique = rn.getTopInfluencersByUniqueReach(2);
+    printVector(unique);
+
+    cout << "\n=== Test 8: Flow Centrality Top 3 ===\n";
+    vector<pair<string, int> > central = rn.getTopFlowCentralUsers(3);
+    printTopList(central);
 
     return 0;
 }

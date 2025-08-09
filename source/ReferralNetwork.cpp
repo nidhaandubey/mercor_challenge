@@ -73,7 +73,87 @@ public:
         if (k > result.size()) k = result.size();
         return vector<pair<string, int> >(result.begin(), result.begin() + k);
     }
+    // Part 3: Unique Reach Expansion
+    vector<string> getTopInfluencersByUniqueReach(int count) {
+        unordered_map<string, unordered_set<string> > reachSets;
+        for (unordered_map<string, vector<string> >::iterator it = graph.begin(); it != graph.end(); ++it) {
+            string user = it->first;
+            reachSets[user] = getReachSet(user);
+        }
 
+        unordered_set<string> globalCovered;
+        set<string> selected;
+
+        while (selected.size() < (size_t)count) {
+            string bestUser;
+            int maxNew = -1;
+
+            for (unordered_map<string, unordered_set<string> >::iterator it = reachSets.begin(); it != reachSets.end(); ++it) {
+                string user = it->first;
+                if (selected.count(user)) continue;
+
+                int newCount = 0;
+                for (unordered_set<string>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+                    if (!globalCovered.count(*it2)) newCount++;
+                }
+
+                if (newCount > maxNew) {
+                    maxNew = newCount;
+                    bestUser = user;
+                }
+            }
+
+            if (maxNew <= 0) break;
+
+            selected.insert(bestUser);
+            for (unordered_set<string>::iterator it = reachSets[bestUser].begin(); it != reachSets[bestUser].end(); ++it) {
+                globalCovered.insert(*it);
+            }
+        }
+
+        return vector<string>(selected.begin(), selected.end());
+    }
+
+    // Part 3: Flow Centrality
+    vector<pair<string, int> > getTopFlowCentralUsers(int k) {
+        unordered_map<string, int> centrality;
+
+        for (unordered_map<string, vector<string> >::iterator it1 = graph.begin(); it1 != graph.end(); ++it1) {
+            string source = it1->first;
+            unordered_map<string, int> distFromSource = bfsDistances(source);
+
+            for (unordered_map<string, vector<string> >::iterator it2 = graph.begin(); it2 != graph.end(); ++it2) {
+                string target = it2->first;
+                if (source == target) continue;
+                unordered_map<string, int> distFromTarget = bfsDistances(target);
+                if (!distFromSource.count(target)) continue;
+
+                int shortest = distFromSource[target];
+
+                for (unordered_map<string, vector<string> >::iterator it3 = graph.begin(); it3 != graph.end(); ++it3) {
+                    string v = it3->first;
+                    if (v == source || v == target) continue;
+                    if (!distFromSource.count(v) || !distFromTarget.count(v)) continue;
+
+                    if (distFromSource[v] + distFromTarget[v] == shortest) {
+                        centrality[v]++;
+                    }
+                }
+            }
+        }
+
+        vector<pair<string, int> > result;
+        for (unordered_map<string, int>::iterator it = centrality.begin(); it != centrality.end(); ++it) {
+            result.push_back(make_pair(it->first, it->second));
+        }
+
+        sort(result.begin(), result.end(), [](const pair<string, int>& a, const pair<string, int>& b) {
+            return a.second > b.second;
+        });
+
+        if (k > result.size()) k = result.size();
+        return vector<pair<string, int> >(result.begin(), result.begin() + k);
+    }
     private:
         bool createsCycle(const string& referrer, const string& candidate) {
             queue<string> q;
